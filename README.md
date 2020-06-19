@@ -1,4 +1,4 @@
-# Privilege
+![](.github/privilege-header.png)
 
 Easily request superuser privilege in macOS applications with a user-interactive and native password prompt.
 

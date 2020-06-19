@@ -13,7 +13,7 @@ public final class Privilege {
     ///
     /// - Returns: `true` if successful, `false` otherwise.
     public static func escalate() -> Bool {
-        var status: OSStatus = -1
+        var status: OSStatus = errAuthorizationDenied
         rightsName.withCString({name in
             var authItem = AuthorizationItem(
                 name: name,
@@ -30,16 +30,20 @@ public final class Privilege {
                 status = AuthorizationCreate(&rights, nil, flags, &authRef)
             })
         })
-        return status == 0
+        return status == errAuthorizationSuccess
     }
     
     
     /// De-escalate **superuser** privileges.
     ///
     /// - Returns: `true` if successful, `false` otherwise.
+    /// - Note: De-escalation will report `true` if de-escalation is executed
+    ///         without non-privileged state.
     public static func deEscalate() -> Bool {
-        guard let auth = authRef else { return false }
-        return AuthorizationFree(auth, [.destroyRights]) == 0
+        guard let auth = authRef else { return true }
+        let status = AuthorizationFree(auth, [.destroyRights]) == errAuthorizationSuccess
+        authRef = nil
+        return status
     }
     
 }
